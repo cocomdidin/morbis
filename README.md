@@ -1,6 +1,4 @@
-# morbis
-
-Morbis dengan Docker
+# Docker For Morbis Apps Development
 
 
-* [Dokumentasi](https://github.com/cocomdidin/morbis/tree/master/documentation)
+* [Documentation](https://github.com/cocomdidin/morbis/tree/master/documentation)
