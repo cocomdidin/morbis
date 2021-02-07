@@ -1,0 +1,75 @@
+version: "3.8"
+
+networks:
+  network:
+
+volumes:
+  oracledb_vol:
+
+services:
+
+  oracledb:
+    image: cocomdidin/oracle-xe-10g:latest
+    container_name: morbis_oracledb
+    build:
+      context: ./
+      dockerfile: ./build/docker/db.Dockerfile
+    # restart: "always"
+    volumes:
+      - ./database:/home/database
+      - oracledb_vol:/usr/lib/oracle
+      # - ./build/env/oracledata/oradata:/opt/oracle/oradata # persistent oracle database data.
+      # - ./build/env/oracledata/data-bridge:/data-bridge # just to have someplace to put data into the running container if needed
+    ports:
+      - "1000:22"
+      - "1002:1521"
+      - "1003:8080"
+    networks:
+      - network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: "100M"
+          
+  app:
+    image: cocomdidin/php5-oci-apache:latest
+    container_name: morbis_app
+    build:
+      context: ./
+      dockerfile: ./build/docker/app.Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./public/:/var/www/html/
+    networks:
+      - network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: "50M"
+    depends_on:
+      - oracledb
+
+  backend:
+    image: cocomdidin/python-oracle-client-12.1:latest
+    container_name: morbis_backend
+    build: 
+      context: ./
+      dockerfile: ./build/docker/backend.Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/code
+    ports:
+      - "8000:8000"
+    networks:
+      - network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: "50M"
+    depends_on:
+      - oracledb
