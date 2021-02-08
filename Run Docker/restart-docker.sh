@@ -1,5 +1,7 @@
 cd ../
-docker-compose restart
+docker-compose down
+docker builder prune --force
+docker-compose up -d
 
 sleep 2
 echo ''
